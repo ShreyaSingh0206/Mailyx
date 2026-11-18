@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -12,13 +13,22 @@ dotenv.config();
 
 const app = express();
 
+// Trust Render's proxy
+app.set("trust proxy", 1);
+
+// Allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 // Database connection
 connectDB();
 
 // Middlewares
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -26,14 +36,15 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+// Root route
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "MailMate AI backend is running!",
+    message: "Mailyx backend is running!",
   });
 });
 
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/emails", emailRoutes);
 app.use("/api/clients", clientRoutes);
